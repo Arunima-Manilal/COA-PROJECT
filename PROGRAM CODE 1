@@ -1,0 +1,217 @@
+Matrix Multiplication using RISC-V Assembly (COA Project)
+📌 Project Overview
+
+This project implements matrix multiplication for two square matrices using RISC-V assembly language. It is developed as part of the Computer Organization and Architecture (COA) course to demonstrate low-level implementation of nested loops, memory addressing, and arithmetic operations.
+
+The program multiplies two N × N matrices and stores the result in a third matrix.
+
+🎯 Objectives
+
+Understand matrix multiplication logic at assembly level
+
+Practice nested loops (i, j, k) in RISC-V
+
+Learn memory addressing and indexing for 2D arrays
+
+Strengthen understanding of register usage and control flow
+
+🧠 Matrix Multiplication Logic
+
+For matrices A and B, the result matrix C is computed as:
+
+C[i][j] = Σ (A[i][k] × B[k][j])   for k = 0 to N−1
+
+
+This is implemented using:
+
+Outer loop → rows (i)
+
+Middle loop → columns (j)
+
+Inner loop → multiplication and summation (k)
+
+🛠️ Implementation Details
+
+Language: RISC-V Assembly
+
+Matrix Size: Configurable (4×4, 8×8, or 16×16)
+
+Memory Allocation:
+
+Each matrix uses static memory
+
+Maximum supported size: 16 × 16 × 4 bytes = 1024 bytes
+
+🧾 Registers Used
+Register	Purpose
+s0	Base address of Matrix A
+s1	Base address of Matrix B
+s2	Base address of Matrix C
+s3	Matrix size (N)
+s4	Loop variable i
+s5	Loop variable j
+s6	Loop variable k
+t3	Accumulator (sum)
+📄 Source Code
+.data
+N: .word 4        # Matrix size N×N (change to 4, 8, or 16)
+A: .zero 1024     # Matrix A
+B: .zero 1024     # Matrix B
+C: .zero 1024     # Result Matrix C
+
+.text
+.globl main
+main:
+    la s0, A
+    la s1, B
+    la s2, C
+    lw s3, N
+
+    li s4, 0              # i = 0
+outer_loop:
+    bge s4, s3, end_program
+
+    li s5, 0              # j = 0
+middle_loop:
+    bge s5, s3, next_i
+
+    li t3, 0              # sum = 0
+    li s6, 0              # k = 0
+inner_loop:
+    bge s6, s3, store_result
+
+    mul t0, s4, s3
+    add t0, t0, s6
+    slli t0, t0, 2
+    add t1, s0, t0
+    lw t4, 0(t1)
+
+    mul t0, s6, s3
+    add t0, t0, s5
+    slli t0, t0, 2
+    add t1, s1, t0
+    lw t5, 0(t1)
+
+    mul t6, t4, t5
+    add t3, t3, t6
+
+    addi s6, s6, 1
+    j inner_loop
+
+store_result:
+    mul t0, s4, s3
+    add t0, t0, s5
+    slli t0, t0, 2
+    add t1, s2, t0
+    sw t3, 0(t1)
+
+    addi s5, s5, 1
+    j middle_loop
+
+next_i:
+    addi s4, s4, 1
+    j outer_loop
+
+end_program:
+    li a7, 10
+    ecall
+
+▶️ How to Run
+
+Open RIPES.ME
+
+Load the CODE
+
+Modify matrix values in memory if required
+
+Run the program
+
+View result  ANALYSE THE CACHE HIT AND ISSES AND ANALYSE THE PERFOMANCE FROM CACHE OVERVIEW OF RIPES.ME 
+
+📚 Learning Outcomes
+
+Gained hands-on experience with RISC-V RIPES.ME
+
+Understood low-level matrix computations
+
+Improved understanding of COA concepts
+
+Learned to manage memory and registers efficiently
+
+
+
+Cache Performance Analysis (Using Ripes Simulator)
+🔍 Tool Used
+
+Simulator: Ripes (RISC-V Instruction Pipeline Simulator)
+
+Feature Used: Cache Simulation (Data Cache)
+
+🧩 Cache Concept Overview
+
+In this project, matrix multiplication involves frequent memory accesses to matrices A, B, and C. These accesses significantly impact performance based on cache behavior.
+
+Cache Hit:
+When required data is found in the cache memory.
+
+Cache Miss:
+When data is not found in cache and must be fetched from main memory.
+
+🧮 Cache Behavior in This Program
+1️⃣ Initial Access Phase
+
+When the program starts, the cache is empty
+
+First accesses to matrix elements cause compulsory cache misses
+
+2️⃣ Inner Loop Access Pattern
+
+Matrix A[i][k] is accessed sequentially
+
+Matrix B[k][j] is accessed repeatedly across iterations
+
+This creates temporal and spatial locality
+
+➡️ Result:
+
+After initial misses, most accesses become cache hits
+
+3️⃣ Result Storage
+
+Writing to matrix C[i][j] also benefits from locality
+
+Once cache lines are loaded, subsequent writes show higher hit rates
+
+📈 Observations from Ripes Simulator
+
+High cache hit rate after the first few iterations
+
+Reduced memory access latency
+
+Improved execution efficiency for larger matrix sizes
+
+Cache effectiveness increases as N grows due to repeated data reuse
+
+📊 Performance Summary
+Aspect	Observation
+Initial memory access	Cache Miss
+Repeated inner-loop access	Cache Hit
+Matrix reuse	Improves hit rate
+Overall performance	Optimized by cache
+🎯 Conclusion
+
+The matrix multiplication algorithm demonstrates effective cache utilization due to:
+
+Repeated access to the same memory locations
+
+Sequential memory traversal
+
+Strong temporal and spatial locality
+
+Using the Ripes simulator, we observed that cache hits dominate execution after the initial misses, leading to better performance and reduced memory overhead.
+
+👩‍💻 Author
+
+Arunima Manilal
+B.Tech Computer Science
+COA Mini Projec
