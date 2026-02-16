@@ -1,0 +1,228 @@
+Blocked Matrix Multiplication using RISC-V Assembly
+Cache-Optimized COA Project (Ripes Simulator)
+📌 Project Overview
+
+This project implements Blocked (Tiled) Matrix Multiplication using RISC-V assembly language.
+The goal of this implementation is to improve cache performance by reducing cache misses during matrix multiplication.
+
+This project was developed as part of the Computer Organization and Architecture (COA) course and analyzed using the Ripes Simulator.
+
+🎯 Objectives
+
+Implement matrix multiplication using blocking technique
+
+Reduce cache misses compared to naive matrix multiplication
+
+Demonstrate cache-aware programming
+
+Analyze cache hit and miss behavior using simulation
+
+Strengthen understanding of memory hierarchy and locality
+
+🧠 Why Blocked Matrix Multiplication?
+
+In normal matrix multiplication:
+
+Large matrices cause frequent cache misses
+
+Data is repeatedly loaded and evicted from cache
+
+🔹 Blocking (Tiling) Technique
+
+Matrices are divided into smaller blocks (B × B)
+
+Each block fits better in cache
+
+Data is reused before eviction
+
+➡️ This significantly improves cache hit rate
+
+🧮 Algorithm Description
+
+Given:
+
+Matrix size: N × N
+
+Block size: B × B
+
+The loops are structured as:
+
+for ii = 0 to N step B
+  for jj = 0 to N step B
+    for kk = 0 to N step B
+      for i = ii to min(ii+B, N)
+        for j = jj to min(jj+B, N)
+          for k = kk to min(kk+B, N)
+            C[i][j] += A[i][k] × B[k][j]
+
+🛠️ Implementation Details
+
+Language: RISC-V Assembly
+
+Matrix Size (N): 16
+
+Block Size (B): 8
+
+Memory Allocation:
+
+Each matrix: 16 × 16 × 4 bytes = 1024 bytes
+
+Simulator Used: Ripes
+
+🧾 Register Usage
+Register	Purpose
+s0	Base address of Matrix A
+s1	Base address of Matrix B
+s2	Base address of Matrix C
+s3	Matrix size N
+s4	Block size B
+t0–t2	Block indices (ii, jj, kk)
+t3–t5	Loop variables (i, j, k)
+a0	Accumulator (sum)
+📄 Source Code
+.data
+N:      .word 16
+B_size: .word 8
+A:      .zero 1024
+B:      .zero 1024
+C:      .zero 1024
+
+.text
+.globl main
+main:
+    la s0, A
+    la s1, B
+    la s2, C
+
+    lw s3, N
+    lw s4, B_size
+
+    li t0, 0
+loop_ii:
+    bge t0, s3, end_program
+
+    li t1, 0
+loop_jj:
+    bge t1, s3, inc_ii
+
+    li t2, 0
+loop_kk:
+    bge t2, s3, inc_jj
+
+    mv t3, t0
+loop_i:
+    add t6, t0, s4
+    bge t3, t6, inc_kk
+    bge t3, s3, inc_kk
+
+    mv t4, t1
+loop_j:
+    add t6, t1, s4
+    bge t4, t6, inc_i
+    bge t4, s3, inc_i
+
+    mul t5, t3, s3
+    add t5, t5, t4
+    slli t5, t5, 2
+    add s5, s2, t5
+    lw a0, 0(s5)
+
+    mv t5, t2
+loop_k:
+    add t6, t2, s4
+    bge t5, t6, store_c
+    bge t5, s3, store_c
+
+    mul t6, t3, s3
+    add t6, t6, t5
+    slli t6, t6, 2
+    add a1, s0, t6
+    lw a2, 0(a1)
+
+    mul t6, t5, s3
+    add t6, t6, t4
+    slli t6, t6, 2
+    add a3, s1, t6
+    lw a4, 0(a3)
+
+    mul a2, a2, a4
+    add a0, a0, a2
+
+    addi t5, t5, 1
+    j loop_k
+
+store_c:
+    sw a0, 0(s5)
+    addi t4, t4, 1
+    j loop_j
+
+inc_i:
+    addi t3, t3, 1
+    j loop_i
+
+inc_kk:
+    add t2, t2, s4
+    j loop_kk
+
+inc_jj:
+    add t1, t1, s4
+    j loop_jj
+
+inc_ii:
+    add t0, t0, s4
+    j loop_ii
+
+end_program:
+    li a7, 10
+    ecall
+
+🧠 Cache Performance Analysis (Ripes Simulator)
+🔍 Observations
+
+Initial accesses cause compulsory cache misses
+
+Once a block is loaded:
+
+Multiple accesses reuse the same cache lines
+
+Temporal and spatial locality are exploited
+
+Compared to naive multiplication:
+
+Cache misses are significantly reduced
+
+Cache hit rate is higher
+
+📊 Cache Hit vs Cache Miss Comparison
+Method	Cache Misses	Cache Hits
+Normal Matrix Multiplication	High	Low
+Blocked Matrix Multiplication	Low	High
+🎯 Conclusion
+
+Blocked matrix multiplication:
+
+Improves cache utilization
+
+Reduces memory access latency
+
+Demonstrates the importance of cache-aware algorithm design
+
+This project clearly shows how algorithm optimization at assembly level can significantly improve system performance.
+
+▶️ How to Run
+
+Open Ripes Simulator
+
+Load the .asm file
+
+Enable Data Cache Simulation
+
+Run the program
+
+Observe cache hit/miss statistics
+
+👩‍💻 Author
+
+Arunima Manilal
+B.Tech Computer Science
+Computer Organization & Architecture Project
