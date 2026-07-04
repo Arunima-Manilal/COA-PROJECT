@@ -12,7 +12,6 @@ COA PROJECT -ARRAY SIZE AND CACHE MISS ANALYSIS
 - Repeated memory accesses cause frequent cache evictions
 - Lower cache hit rate due to poor locality
 
-*(Screenshot: Ripes data cache statistics for normal matrix multiplication)*
 
 ---
 
@@ -20,8 +19,6 @@ COA PROJECT -ARRAY SIZE AND CACHE MISS ANALYSIS
 - Significantly **reduced cache misses**
 - Higher cache hit rate due to **blocking (tiling)**
 - Improved performance from **temporal and spatial locality**
-
-*(Screenshot: Ripes data cache statistics for blocked matrix multiplication)*
 
 ---
 
